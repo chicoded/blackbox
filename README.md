@@ -57,3 +57,28 @@ URL (on the same network, replace `localhost` with your machine's LAN IP) and **
 
 ### Add your own
 Create `server/modes/myMode.js` exporting `defineMode({ id, title, character, intro, maskStyle, matchMode, puzzles })`, then register it in `server/ModeRegistry.js`. That's it.
+
+## Deploying (Vercel + Render)
+
+This game has two parts that deploy separately:
+
+| Part | Host | Why |
+|------|------|-----|
+| **Client** (Vite) | **Vercel** | static site, instant |
+| **Server** (Socket.IO) | **Render** (or Railway/Fly) | needs persistent WebSocket connections — **Vercel serverless can't keep these alive** |
+
+### 1. Deploy the server to Render
+1. Go to [render.com](https://render.com) → **New +** → **Blueprint** → connect this repo.
+2. Render reads `render.yaml` and creates `blackbox-server` (free, WebSocket-capable).
+3. Copy the live URL, e.g. `https://blackbox-server.onrender.com`.
+
+### 2. Deploy the client to Vercel
+1. Go to [vercel.com](https://vercel.com) → **Add New Project** → import this repo.
+2. Vercel reads `vercel.json` (builds `client/`, outputs `client/dist`).
+3. In **Settings → Environment Variables**, add:
+   ```
+   VITE_SERVER_URL = https://blackbox-server.onrender.com
+   ```
+4. Deploy. The client connects to your Render server over WebSockets.
+
+> Note: Render's free tier sleeps after inactivity, so the first connection may take ~30s to wake. Fine for a demo; upgrade for an always-on hackathon booth.

@@ -1,0 +1,13 @@
+# One-click deploy of the Black Box realtime server to Render (free, supports WebSockets).
+# In Render: New + > Blueprint > pick this repo. It reads this file.
+services:
+  - type: web
+    name: blackbox-server
+    runtime: node
+    plan: free
+    buildCommand: npm install --prefix server
+    startCommand: node server/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
